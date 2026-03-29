@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Energy Decision App</title>
+  </head>
+  <body>
+    <h2>Energy Cost Helper</h2>
+
+    <label>User Type:</label>
+    <select id="user_type">
+      <option value="low_income">Low Income</option>
+      <option value="elderly">Elderly</option>
+      <option value="general">General</option>
+    </select>
+
+    <br /><br />
+
+    <label>Usage Level:</label>
+    <select id="usage_level">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <br /><br />
+
+    <label>Price Risk:</label>
+    <select id="price_risk">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <br /><br />
+
+    <button onclick="getAdvice()">Get Advice</button>
+
+    <h3>Result:</h3>
+    <div id="output"></div>
+
+    <script>
+      async function getAdvice() {
+        const data = {
+          user_type: document.getElementById("user_type").value,
+          usage_level: document.getElementById("usage_level").value,
+          price_risk: document.getElementById("price_risk").value,
+        };
+
+        const response = await fetch("http://127.0.0.1:8000/explain", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        document.getElementById("output").innerHTML = `
+  <h3>AI Advice</h3>
+  <p>${result.ai_explanation}</p>
+
+  <h3>Risk Level</h3>
+  <p>${result.recommendation.risk}</p>
+
+  <h3>Best Time</h3>
+  <p>${result.recommendation.best_time}</p>
+
+  <h3>Recommended Actions</h3>
+  <ul>
+    ${result.recommendation.actions
+      .map((action) => `<li>${action}</li>`)
+      .join("")}
+  </ul>
+
+  <h3>Estimated Saving</h3>
+  <p>${result.recommendation.estimated_saving}</p>
+`;
+      }
+    </script>
+  </body>
+</html>
